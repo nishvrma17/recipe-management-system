@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Recipe Management</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+        body {
+                font-family: 'Poppins', Arial, sans-serif;
+                margin: 20px;
+                padding: 20px;
+                background-color: #f8f8f8;
+                background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: -1;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgb(237, 180, 180);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #searchBar {
+            flex: 3;
+        }
+        #searchButton {
+            flex: 1;
+            max-width: 100px;
+        }
+        .highlighted-recipe {
+            background: #ffd700;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .spacer {
+            height: 20px;
+        }
+        input, textarea, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        select#recipeCategory {
+            width: 90%; /* Slightly narrower than the input box */
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        select#recipeCategory:focus {
+            outline: none;
+            border-color: #59d977; /* Highlight color when selected */
+        }
+        button {
+            background-color: #59d977;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .recipe {
+            background: #fff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .recipe-details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            width: 600px;
+            gap: 10px; 
+            margin: 20px 0;
+        }
+        .filter-container button {
+            flex: none;
+            width: 120px;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #6c7074;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .filter-container button:hover {
+    background-color: #495057;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Yummlyy...</h1>
+    <h2 style="text-align: center;">A House of Mouth-Watering Recipes</h2>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search Recipes">
+            <button id="searchButton" onclick="searchRecipes()">Search</button>
+        </div>
+        <div id="highlightedRecipe"></div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="container">
+        <input type="text" id="recipeName" placeholder="Recipe Name">
+        <input type="text" id="ingredients" placeholder="Ingredients (comma-separated)">
+        <input type="text" id="instructions" placeholder="Instructions (comma-separated)">
+        <select type="select" id="recipeCategory">
+            <option value="main-course">Main Course</option>
+            <option value="snacks">Snacks</option>
+            <option value="dessert">Dessert</option>
+            <option value="beverage"> Beverage </option>
+        </select>
+        
+        <button onclick="addRecipe()">Add Recipe</button>
+
+        <div class="filter-container">
+            <button onclick="filterRecipes('all')">All</button>
+            <button onclick="filterRecipes('snacks')">Snacks</button>
+            <button onclick="filterRecipes('main-course')">Main Course</button>
+            <button onclick="filterRecipes('dessert')">Dessert</button>
+            <button onclick="filterRecipes('beverage')">Beverage</button>
+        </div>
+        
+    
+        <div id="recipeList">
+            <div class="recipe" data-name="pancakes" data-category="snacks" onclick="toggleDetails(this)">
+                <h3>Pancakes</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Flour, Eggs, Milk, Sugar, Baking Powder</p>
+                    <p><strong>Instructions:</strong> Mix ingredients, cook on a skillet until golden brown.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="spaghetti bolognese" data-category="main-course" onclick="toggleDetails(this)">
+                <h3>Spaghetti Bolognese</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Spaghetti, Ground Beef, Tomato Sauce, Garlic, Onion</p>
+                    <p><strong>Instructions:</strong> Cook spaghetti, prepare sauce with beef and tomato, combine and serve.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="chocolate cake" data-category="dessert" onclick="toggleDetails(this)">
+                <h3>Chocolate Cake</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Flour, Cocoa Powder, Sugar, Eggs, Butter</p>
+                    <p><strong>Instructions:</strong> Mix ingredients, bake at 350°F for 30 minutes.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="caesar salad" data-category="snacks" onclick="toggleDetails(this)">
+                <h3>Caesar Salad</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Romaine Lettuce, Croutons, Parmesan, Caesar Dressing</p>
+                    <p><strong>Instructions:</strong> Toss all ingredients together and serve.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="greek salad" data-category="snacks" onclick="toggleDetails(this)">
+                <h3>Greek Salad</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Tomatoes, Cucumbers, Red Onion, Feta Cheese, Kalamata Olives, Olive Oil, Oregano</p>
+                    <p><strong>Instructions:</strong> Chop vegetables, toss with feta and olives. Drizzle with olive oil and sprinkle oregano before serving.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="grilled chicken" data-category="main-course" onclick="toggleDetails(this)">
+                <h3>Grilled Chicken</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Chicken Breasts, Olive Oil, Garlic, Lemon Juice, Herbs</p>
+                    <p><strong>Instructions:</strong> Marinate chicken with olive oil, garlic, lemon juice, and herbs. Grill until fully cooked.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="mac and cheese" data-category="snacks" onclick="toggleDetails(this)">
+                <h3>Mac and Cheese</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Macaroni, Cheddar Cheese, Milk, Butter, Flour</p>
+                    <p><strong>Instructions:</strong> Cook macaroni. Make a cheese sauce with butter, flour, milk, and cheese. Combine and bake if desired.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="sushi rolls" data-category="snacks" onclick="toggleDetails(this)">
+                <h3>Sushi Rolls</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Sushi Rice, Nori, Cucumber, Avocado, Crab Meat</p>
+                    <p><strong>Instructions:</strong> Place rice on nori, add fillings, roll tightly, and slice into pieces. Serve with soy sauce.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="french toast" data-category="snacks" onclick="toggleDetails(this)">
+                <h3>French Toast</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Bread, Eggs, Milk, Cinnamon, Vanilla Extract</p>
+                    <p><strong>Instructions:</strong> Dip bread in egg mixture and fry until golden brown. Serve with syrup.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="cheesecake" data-category="dessert" onclick="toggleDetails(this)">
+                <h3>Cheesecake</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Cream Cheese, Sugar, Eggs, Graham Crackers, Butter</p>
+                    <p><strong>Instructions:</strong> Make crust with crushed graham crackers and butter. Mix cream cheese, sugar, and eggs. Pour over crust and bake.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="mojito mocktail" data-category="beverage" onclick="toggleDetails(this)">
+                <h3>Mojito Mocktail</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Mint Leaves, Lime, Sugar, Soda Water, Ice</p>
+                    <p><strong>Instructions:</strong> Muddle mint leaves and lime with sugar. Add ice and top with soda water. Stir gently and serve chilled.</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="butter chicken" data-category="main-course" onclick="toggleDetails(this)">
+                <h3> Butter Chicken </h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Chicken, Butter, Tomato Puree, Cream, Garlic, Ginger, Garam Masala, Chili Powder, Coriander, Fenugreek</p>
+                    <p><strong>Instructions:</strong> Marinate chicken in spices and yogurt. Grill or pan-fry the chicken. Prepare a creamy tomato sauce with butter, add the chicken, simmer, and serve with naan or rice</p>
+                </div>
+            </div>
+            <div class="recipe" data-name="gulab jamun" data-category="dessert" onclick="toggleDetails(this)">
+                <h3>Gulab Jamun</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> Khoya/Milk Powder, Maida, Baking Soda, Sugar, Cardamom, Rose Water, Ghee/Oil</p>
+                    <p><strong>Instructions:</strong> Make dough balls from khoya and flour. Fry them until golden brown. Soak in sugar syrup flavored with cardamom and rose water.</p>
+                </div>
+            </div>
+                                                                        
+        </div>
+    </div>
+    <script>
+        // Load recipes from localStorage on page load
+        window.onload = function () {
+            const storedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+            storedRecipes.forEach(recipe => renderRecipe(recipe));
+        };
+    
+        function addRecipe() {
+            let name = document.getElementById('recipeName').value.trim();
+            let ingredients = document.getElementById('ingredients').value.trim();
+            let instructions = document.getElementById('instructions').value.trim();
+            let category = document.getElementById('recipeCategory').value;
+    
+            if (name === '' || ingredients === '' || instructions === '' || category === '') {
+                alert('Please fill in all fields');
+                return;
+            }
+    
+            const newRecipe = {
+                name,
+                ingredients,
+                instructions,
+                category
+            };
+    
+            // Save to localStorage
+            let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+            recipes.push(newRecipe);
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+    
+            // Render new recipe
+            renderRecipe(newRecipe);
+    
+            // Clear form fields
+            document.getElementById('recipeName').value = '';
+            document.getElementById('ingredients').value = '';
+            document.getElementById('instructions').value = '';
+            document.getElementById('recipeCategory').value = '';
+        }
+    
+        function renderRecipe(recipe) {
+            let recipeDiv = document.createElement('div');
+            recipeDiv.classList.add('recipe');
+            recipeDiv.setAttribute('data-name', recipe.name.toLowerCase());
+            recipeDiv.setAttribute('data-category', recipe.category);
+            recipeDiv.setAttribute('onclick', 'toggleDetails(this)');
+    
+            recipeDiv.innerHTML = `
+                <h3>${recipe.name}</h3>
+                <div class="recipe-details">
+                    <p><strong>Ingredients:</strong> ${recipe.ingredients}</p>
+                    <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+                </div>
+            `;
+    
+            document.getElementById('recipeList').appendChild(recipeDiv);
+        }
+    
+        function searchRecipes() {
+            let filter = document.getElementById('searchBar').value.toLowerCase();
+            let recipes = document.querySelectorAll('.recipe');
+            let highlightedRecipe = document.getElementById('highlightedRecipe');
+            highlightedRecipe.innerHTML = '';
+    
+            recipes.forEach(recipe => {
+                let name = recipe.getAttribute('data-name');
+                if (name.includes(filter)) {
+                    let clonedRecipe = recipe.cloneNode(true);
+                    clonedRecipe.classList.add('highlighted-recipe');
+                    highlightedRecipe.appendChild(clonedRecipe);
+                }
+                recipe.style.display = name.includes(filter) ? 'block' : 'none';
+            });
+        }
+    
+        function toggleDetails(recipe) {
+            let details = recipe.querySelector('.recipe-details');
+            details.style.display = details.style.display === 'block' ? 'none' : 'block';
+        }
+    
+        function filterRecipes(category) {
+            const recipes = document.querySelectorAll('.recipe');
+    
+            recipes.forEach(recipe => {
+                const recipeCategory = recipe.getAttribute('data-category');
+    
+                if (category === 'all' || recipeCategory === category) {
+                    recipe.style.display = 'block';
+                } else {
+                    recipe.style.display = 'none';
+                }
+            });
+        }
+    </script>
+    
+</body>
+</html>
